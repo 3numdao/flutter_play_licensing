@@ -32,10 +32,12 @@ object PlayLicensingConfig {
  * ref. https://developer.android.com/google/play/licensing/client-side-verification
  */
 public class FlutterPlayLicensingPlugin(private val registrar: Registrar? = null) : FlutterPlugin, MethodCallHandler {
+  private var flutterPluginBinding: FlutterPlugin.FlutterPluginBinding? = null
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+    this.flutterPluginBinding = flutterPluginBinding
     val channel = MethodChannel(flutterPluginBinding.binaryMessenger, "play_licensing")
-    channel.setMethodCallHandler(FlutterPlayLicensingPlugin())
+    channel.setMethodCallHandler(this)
   }
 
   // This static function is optional and equivalent to onAttachedToEngine. It supports the old
@@ -58,13 +60,13 @@ public class FlutterPlayLicensingPlugin(private val registrar: Registrar? = null
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
     when (call.method) {
       "check" -> {
-        check(call, result)
+      check(call, result)
       }
       "isAllowed" -> {
-        isAllowed(call, result)
+      isAllowed(call, result)
       }
       else -> {
-        result.notImplemented()
+      result.notImplemented()
       }
     }
   }
@@ -86,7 +88,8 @@ public class FlutterPlayLicensingPlugin(private val registrar: Registrar? = null
   }
 
   private fun isAllowed(@NonNull call: MethodCall, @NonNull result: Result) {
-    registrar?.context()?.let { context ->
+    val ctx = registrar?.context() ?: flutterPluginBinding?.applicationContext
+    ctx?.let { context ->
       val checker = context.checker(
               call.argument<String>("salt")?.toHexByteArray,
               call.argument<String>("publicKey"))

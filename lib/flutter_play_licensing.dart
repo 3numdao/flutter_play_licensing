@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 class PlayLicensing {
-  static const MethodChannel _channel =
-      const MethodChannel('play_licensing');
+  static const MethodChannel _channel = const MethodChannel('play_licensing');
 
   static Future<int> check({
     /// In hex
     /// Prefer to initialize PlayLicensing.salt in native
-    String salt,
+    String? salt,
+
     /// In base64
-    String publicKey,
+    required String publicKey,
   }) async {
     final int reason = await _channel.invokeMethod('check', {
       'salt': salt,
@@ -23,9 +23,10 @@ class PlayLicensing {
   static Future<bool> isAllowed({
     /// In hex
     /// Prefer to initialize PlayLicensing.salt in native
-    String salt,
+    String? salt,
+
     /// In base64
-    String publicKey,
+    required String publicKey,
   }) async {
     return await _channel.invokeMethod('isAllowed', {
       'salt': salt,
